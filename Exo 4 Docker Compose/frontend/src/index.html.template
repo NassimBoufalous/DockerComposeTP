@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Exo 4 - Postgres Stack</title>
+</head>
+<body style="font-family: Arial; margin: 24px;">
+  <h1>Users</h1>
+
+  <div>
+    <input id="u" placeholder="username" style="margin:4px; padding:6px; border:1px solid #ccc;">
+    <input id="p" placeholder="password" style="margin:4px; padding:6px; border:1px solid #ccc;">
+    <button onclick="createUser()" style="margin:4px; padding:6px 10px;">Create</button>
+  </div>
+
+  <button onclick="loadUsers()" style="margin:4px; padding:6px 10px;">Refresh</button>
+
+  <pre id="out" style="margin-top:12px; background:#f5f5f5; padding:12px;"></pre>
+
+  <script>
+    const BACKEND_URL = "${BACKEND_URL}";
+    const BACKEND_PORT = "${BACKEND_PORT}";
+    const API = `${BACKEND_URL}:${BACKEND_PORT}`;
+
+    async function loadUsers() {
+      const r = await fetch(`${API}/api/users`);
+      const j = await r.json();
+      document.getElementById("out").textContent = JSON.stringify(j, null, 2);
+    }
+
+    async function createUser() {
+      const u = document.getElementById("u");
+      const p = document.getElementById("p");
+
+      const username = u.value.trim();
+      const password = p.value.trim();
+
+      u.style.border = "1px solid #ccc";
+      p.style.border = "1px solid #ccc";
+
+      let bad = false;
+      if (username === "") { u.style.border = "2px solid red"; bad = true; }
+      if (password === "") { p.style.border = "2px solid red"; bad = true; }
+      if (bad) return;
+
+      await fetch(`${API}/api/users`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({username, password})
+      });
+
+      u.value = "";
+      p.value = "";
+      loadUsers();
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

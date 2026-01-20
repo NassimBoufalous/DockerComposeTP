@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Postgres Nassim",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "appdb",
+      "Username": "nassim",
+      "SSLMode": "prefer"
+    }
+  }
+}

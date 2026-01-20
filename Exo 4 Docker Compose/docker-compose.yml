@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - ./docker/postgres.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    env_file:
+      - ./docker/pgadmin.env
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin_servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "5050:5050"
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/backend.dockerfile
+    env_file:
+      - ./docker/backend.env
+      - ./docker/postgres.env
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/frontend.dockerfile
+    env_file:
+      - ./docker/frontend.env
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:
+  pgadmin_data:
