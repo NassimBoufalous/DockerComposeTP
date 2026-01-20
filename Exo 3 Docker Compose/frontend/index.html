@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Exo 3 - Random Users via Tor</title>
+</head>
+<body style="font-family: Arial; margin: 24px;">
+  <h1>Users (via Tor)</h1>
+  <button onclick="loadUsers()" style="padding:6px 10px;">Refresh</button>
+  <div id="list" style="margin-top: 16px;"></div>
+
+  <script>
+    const API = "http://localhost:5000";
+
+    async function loadUsers() {
+      const list = document.getElementById("list");
+      list.innerHTML = "Loading...";
+
+      try {
+        const res = await fetch(`${API}/api/users`);
+        const users = await res.json();
+
+        list.innerHTML = "";
+        for (const u of users) {
+          const row = document.createElement("div");
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.gap = "12px";
+          row.style.margin = "10px 0";
+
+          const img = document.createElement("img");
+          img.src = u.photo;
+          img.width = 80;
+          img.height = 80;
+          img.style.borderRadius = "50%";
+
+          const name = document.createElement("div");
+          name.innerText = u.name;
+
+          row.appendChild(img);
+          row.appendChild(name);
+          list.appendChild(row);
+        }
+      } catch (e) {
+        list.innerHTML = "Erreur.";
+        console.error(e);
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

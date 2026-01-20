@@ -1,4 +1,4 @@
-NAME=exo1
+NAME=exo3
 COMPOSE=docker compose -p $(NAME) -f docker-compose.yml
 
 all:
