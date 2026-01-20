@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Exo2 CRUD SQLite</title>
+  <style>
+    body { font-family: Arial; margin: 24px; }
+    input { margin: 4px; }
+    table { border-collapse: collapse; margin-top: 12px; }
+    td, th { border: 1px solid #ccc; padding: 6px 10px; }
+    button { margin: 0 4px; }
+    .error {
+    border: 2px solid red; }
+</style>
+
+  </style>
+</head>
+<body>
+  <h1>CRUD Users</h1>
+
+  <div>
+    <h3>Create</h3>
+    <input id="c_user" placeholder="username">
+    <input id="c_pass" placeholder="password">
+    <button onclick="createUser()">Create</button>
+  </div>
+
+  <div>
+    <h3>Update</h3>
+    <input id="u_id" placeholder="id">
+    <input id="u_user" placeholder="username">
+    <input id="u_pass" placeholder="password">
+    <button onclick="updateUser()">Update</button>
+  </div>
+
+  <div>
+    <button onclick="loadUsers()">Refresh list</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Username</th><th>Password</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script>
+    const API = 'http://localhost:5000';
+
+    async function loadUsers() {
+      const res = await fetch(`${API}/api/users`);
+      const users = await res.json();
+      const rows = document.getElementById('rows');
+      rows.innerHTML = '';
+      for (const u of users) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${u.username}</td>
+          <td>${u.password}</td>
+          <td>
+            <button onclick="delUser(${u.id})">Delete</button>
+          </td>
+        `;
+        rows.appendChild(tr);
+      }
+    }
+
+    function escapeStr(s) {
+      return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+
+        async function createUser() {
+    const userInput = document.getElementById('c_user');
+    const passInput = document.getElementById('c_pass');
+
+    const username = userInput.value.trim();
+    const password = passInput.value.trim();
+
+     userInput.classList.remove('error');
+     passInput.classList.remove('error');
+
+     let hasError = false;
+
+     if (username === "") {
+       userInput.classList.add('error');
+       hasError = true;
+     }
+   
+     if (password === "") {
+       passInput.classList.add('error');
+       hasError = true;
+     }
+   
+     if (hasError) {
+       return;
+     }
+   
+     await fetch('http://localhost:5000/api/users', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ username, password })
+     });
+   
+     userInput.value = "";
+     passInput.value = "";
+   
+     loadUsers();
+    }
+
+    async function updateUser() {
+      const id = document.getElementById('u_id').value;
+      const username = document.getElementById('u_user').value;
+      const password = document.getElementById('u_pass').value;
+
+      await fetch(`${API}/api/users/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password })
+      });
+
+      loadUsers();
+    }
+
+    async function delUser(id) {
+      await fetch(`${API}/api/users/${id}`, { method: 'DELETE' });
+      loadUsers();
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
